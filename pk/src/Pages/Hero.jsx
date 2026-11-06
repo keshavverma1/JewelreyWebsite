@@ -14,7 +14,7 @@ import {
   FiChevronDown,
 } from "react-icons/fi";
 import HeroSlider from "../components/Swiper";
-import CategoryGrid from "../SmallComponents/CategoryGrid.jsx";
+import CategoryGrid from "../SmallComponents/Categorygrid.jsx";
 import { Auth } from "../context/AuthContext.jsx";
 import { Link } from "react-router-dom";
 
