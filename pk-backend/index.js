@@ -1,4 +1,4 @@
-```javascript
+
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
@@ -88,4 +88,4 @@ app.use("/api/products", productRoutes);
 
 // Export for Vercel
 export default app;
-```
+
