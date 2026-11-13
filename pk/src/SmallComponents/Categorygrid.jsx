@@ -13,7 +13,7 @@ import { Link } from "react-router-dom";
 const tiles = [
   {
     title: "Ladies Rings",
-    href: "/category/ladies-ring",
+    href: "/category/ladies-rings-1-100",
     video:
       "https://buket-pk-website.s3.us-east-1.amazonaws.com/pk+collection/Pencil_sketching_jewellery_desig%E2%80%A6_20261027225318+(1).mp4",
     poster: "/Analysis%20output%203.png",
