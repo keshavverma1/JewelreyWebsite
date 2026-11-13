@@ -81,7 +81,7 @@ export default function WishlistDrawer({ open, onClose, items }) {
         <div className="relative flex items-center justify-between px-5 py-4">
           <div className="flex items-center gap-3">
             <img
-              src={"http://localhost:5173/pk-logo.png"}
+              src={"https://res.cloudinary.com/dvr0vpuuk/image/upload/v1794597242/PK_logo_fjwadp.png"}
               alt="PK Jewellery"
               className="h-10 w-10 rounded-full bg-white object-contain p-1"
             />
