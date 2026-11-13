@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Auth } from "../context/AuthContext";
 
-const LOGO = "http://localhost:5173/pk-logo.png";
+const LOGO = "https://res.cloudinary.com/dvr0vpuuk/image/upload/v1794597242/PK_logo_fjwadp.png";
 const GOLD = "#d4a64a";
 
 // Dummy product (baad mein apne context/API se replace kar dena)
