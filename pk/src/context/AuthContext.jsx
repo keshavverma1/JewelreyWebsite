@@ -1,5 +1,4 @@
-
-import { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 
 export const Auth = createContext();
 import api from "../api/api"; // apne actual path se replace karo
@@ -7,30 +6,30 @@ import api from "../api/api"; // apne actual path se replace karo
 function AuthContext({ children }) {
   const [user, setUser] = useState(null);
   const [productsHome, setProductsHome] = useState([]);
+  const [wishlist, setWishlist] = React.useState(
+    JSON.parse(localStorage.getItem("wishlist")) || [],
+  );
+  //drawer ke liye state
+   const [wishOpen, setWishOpen] = useState(false);
 
-useEffect(() => {
-  const fetchproductsforhome = async () => {
-    try {
-      const response = await api.get(
-        `/api/products/p1/ladies-rings-1-100`
-      );
+  useEffect(() => {
+    const fetchproductsforhome = async () => {
+      try {
+        const response = await api.get(`/api/products/p1/ladies-rings-1-100`);
 
-      const products = response.data.products;
+        const products = response.data.products;
 
-      setProductsHome(products.slice(4, 8));
+        setProductsHome(products.slice(4, 8));
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
 
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    }
-  };
-
-  fetchproductsforhome();
-}, []);
-
-  
+    fetchproductsforhome();
+  }, []);
 
   return (
-    <Auth.Provider value={{ user, setUser, productsHome, setProductsHome }}>
+    <Auth.Provider value={{ user, setUser, productsHome, setProductsHome ,wishlist, setWishlist ,wishOpen, setWishOpen}}>
       {children}
     </Auth.Provider>
   );

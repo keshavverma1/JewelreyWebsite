@@ -12,12 +12,11 @@ import api from "../api/api";
  * <Navbar />
  * <Navbar cartCount={3} announcement="Festive collection is live" onSearch={(q) => navigate(`/search?q=${q}`)} />
  */
- 
+
 const LOGO = "/pk-logo.png";
- 
+
 // Vite: VITE_API_URL | CRA me ise process.env.REACT_APP_API_URL se badal do
 
- 
 /* ---------- Category icons ---------- */
 const iconProps = {
   viewBox: "0 0 24 24",
@@ -28,7 +27,7 @@ const iconProps = {
   strokeLinejoin: "round",
   "aria-hidden": true,
 };
- 
+
 // Mens Ring
 export const MensRingIcon = ({ className = "h-5 w-5" }) => (
   <svg {...iconProps} className={className}>
@@ -38,7 +37,7 @@ export const MensRingIcon = ({ className = "h-5 w-5" }) => (
     <ellipse cx="12" cy="15.6" rx="5.2" ry="3.7" />
   </svg>
 );
- 
+
 // Ladies Ring: diamond solitaire
 export const LadiesRingIcon = ({ className = "h-5 w-5" }) => (
   <svg {...iconProps} className={className}>
@@ -47,7 +46,7 @@ export const LadiesRingIcon = ({ className = "h-5 w-5" }) => (
     <circle cx="12" cy="16.2" r="5.8" />
   </svg>
 );
- 
+
 // Boys Earring: stud + hanging diamond drop
 export const BoysEarringIcon = ({ className = "h-5 w-5" }) => (
   <svg {...iconProps} className={className}>
@@ -58,7 +57,7 @@ export const BoysEarringIcon = ({ className = "h-5 w-5" }) => (
     <path d="M12 14.6l2.8 3L12 21.5 9.2 17.6z" />
   </svg>
 );
- 
+
 // Pendant: chain + diamond-cut drop
 export const PendantIcon = ({ className = "h-5 w-5" }) => (
   <svg {...iconProps} className={className}>
@@ -68,7 +67,7 @@ export const PendantIcon = ({ className = "h-5 w-5" }) => (
     <path d="M7.8 15.7h8.4" />
   </svg>
 );
- 
+
 // Wedding: two interlocked rings + sparkle
 export const WeddingIcon = ({ className = "h-5 w-5" }) => (
   <svg {...iconProps} className={className}>
@@ -77,7 +76,7 @@ export const WeddingIcon = ({ className = "h-5 w-5" }) => (
     <path d="M15.2 2.8l1.7 1.9-1.7 2.4-1.7-2.4z" />
   </svg>
 );
- 
+
 // Icon alag se, slug ke hisaab se (categories me icon nahi hota)
 const CATEGORY_ICONS = {
   "all-jewellery": <RiJewelryFill />,
@@ -87,7 +86,7 @@ const CATEGORY_ICONS = {
   pendant: <PendantIcon />,
   wedding: <WeddingIcon />,
 };
- 
+
 // categories array -> navbar links (isActive + showInNavbar + sortOrder)
 // href: /category/:slug
 const toLinks = (list = []) =>
@@ -101,7 +100,7 @@ const toLinks = (list = []) =>
       logo: CATEGORY_ICONS[c.slug],
       children: toLinks(c.children),
     }));
- 
+
 const PLACEHOLDERS = [
   "Search for gold rings",
   "Search for mens ring",
@@ -109,7 +108,7 @@ const PLACEHOLDERS = [
   "Search for pendant",
   "Search for wedding collection",
 ];
- 
+
 /* ---------- Icons (inline SVG, koi extra package nahi chahiye) ---------- */
 const Svg = ({ children, className = "h-6 w-6", ...p }) => (
   <svg
@@ -126,7 +125,7 @@ const Svg = ({ children, className = "h-6 w-6", ...p }) => (
     {children}
   </svg>
 );
- 
+
 const MenuIcon = (p) => (
   <Svg {...p}>
     <path d="M4 7h16M4 12h16M4 17h16" />
@@ -183,7 +182,7 @@ const ChevronIcon = (p) => (
     <path d="M9 6l6 6-6 6" />
   </Svg>
 );
- 
+
 /* ---------- Small reusable bits ---------- */
 const IconBtn = ({ label, href, children, badge }) => {
   const cls =
@@ -208,8 +207,16 @@ const IconBtn = ({ label, href, children, badge }) => {
     </button>
   );
 };
- 
-function SearchBar({ query, setQuery, submit, placeholder, onImage, onVoice, className = "" }) {
+
+function SearchBar({
+  query,
+  setQuery,
+  submit,
+  placeholder,
+  onImage,
+  onVoice,
+  className = "",
+}) {
   return (
     <form
       onSubmit={submit}
@@ -243,7 +250,7 @@ function SearchBar({ query, setQuery, submit, placeholder, onImage, onVoice, cla
     </form>
   );
 }
- 
+
 /* ---------- Main component ---------- */
 function Navbar({
   links: linksProp, // optional: khud links pass karna ho to (API fetch skip hota hai)
@@ -252,26 +259,29 @@ function Navbar({
   onSearch,
   onImageSearch,
   onVoiceSearch,
+  setWishOpen,
   activePath, // optional: override; default me current URL use hota hai
 }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
- 
+
   const [open, setOpen] = useState(false);
   const [showBar, setShowBar] = useState(Boolean(announcement));
   const [query, setQuery] = useState("");
   const [phIndex, setPhIndex] = useState(0);
   const [expanded, setExpanded] = useState(null); // mobile me subcategory open/close
   const [categories, setCategories] = useState([]);
- 
+
   // categories fetch (sirf jab links prop na diya ho)
   useEffect(() => {
     if (linksProp) return;
     const controller = new AbortController();
- 
+
     (async () => {
       try {
-        const res = await api.get("/api/categories/", { signal: controller.signal });
+        const res = await api.get("/api/categories/", {
+          signal: controller.signal,
+        });
         if (res.status === 200 && res.data?.success) {
           setCategories(res.data.categories ?? []);
         }
@@ -281,19 +291,25 @@ function Navbar({
         }
       }
     })();
- 
+
     return () => controller.abort();
   }, [linksProp]);
- 
+
   // categories change hone par links recompute
-  const links = useMemo(() => linksProp ?? toLinks(categories), [linksProp, categories]);
- 
+  const links = useMemo(
+    () => linksProp ?? toLinks(categories),
+    [linksProp, categories],
+  );
+
   // placeholder rotate
   useEffect(() => {
-    const t = setInterval(() => setPhIndex((i) => (i + 1) % PLACEHOLDERS.length), 2600);
+    const t = setInterval(
+      () => setPhIndex((i) => (i + 1) % PLACEHOLDERS.length),
+      2600,
+    );
     return () => clearInterval(t);
   }, []);
- 
+
   // drawer open ho to page scroll band + Esc se close
   useEffect(() => {
     if (!open) return;
@@ -306,12 +322,12 @@ function Navbar({
       window.removeEventListener("keydown", onKey);
     };
   }, [open]);
- 
+
   // route change par drawer band
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
- 
+
   // desktop size par aate hi drawer band
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
@@ -319,7 +335,7 @@ function Navbar({
     mq.addEventListener("change", h);
     return () => mq.removeEventListener("change", h);
   }, []);
- 
+
   const submit = (e) => {
     e.preventDefault();
     const q = query.trim();
@@ -327,19 +343,18 @@ function Navbar({
     if (onSearch) onSearch(q);
     else navigate(`/search?q=${encodeURIComponent(q)}`);
   };
- 
 
-const searchProps = {
-  query,
-  setQuery,
-  submit,
-  placeholder: PLACEHOLDERS[phIndex],
-  onImage: onImageSearch,
-  onVoice: onVoiceSearch,
-};
+  const searchProps = {
+    query,
+    setQuery,
+    submit,
+    placeholder: PLACEHOLDERS[phIndex],
+    onImage: onImageSearch,
+    onVoice: onVoiceSearch,
+  };
 
   const isActive = (href) => (activePath ?? pathname) === href;
- 
+
   return (
     <>
       {/* ===== Announcement bar ===== */}
@@ -358,7 +373,7 @@ const searchProps = {
           </button>
         </div>
       )}
- 
+
       {/* ===== Header ===== */}
       <header className="sticky top-0 z-50 border-b border-[#efe6d2] bg-white/95 backdrop-blur">
         <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
@@ -383,22 +398,29 @@ const searchProps = {
                 />
               </Link>
             </div>
- 
+
             {/* centre: search (desktop) */}
             <div className="hidden max-w-2xl flex-1 lg:block">
               <SearchBar {...searchProps} />
             </div>
- 
+
             {/* right: icons */}
             <div className="flex items-center gap-0.5 sm:gap-1.5">
-              <IconBtn label="Store locator" href="/stores">
-                <StoreIcon />
+              <IconBtn label="Signup" href="/Signup">
+                <UserIcon />
               </IconBtn>
-              <IconBtn label="Wishlist" href="/wishlist">
-                <HeartIcon />
+              <IconBtn>
+                <button
+                  className="grid h-10 w-10 place-items-center rounded-full text-[#8a1c1c] hover:bg-[#fbf1dc]"
+                  label="Wishlist"
+                  onClick={() => setWishOpen(true)}
+                  aria-label="Wishlist"
+                >
+                  <HeartIcon />
+                </button>
               </IconBtn>
               <span className="hidden lg:block">
-                <IconBtn label="Account" href="/account">
+                <IconBtn label="Account" href="/Signup">
                   <UserIcon />
                 </IconBtn>
               </span>
@@ -407,14 +429,17 @@ const searchProps = {
               </IconBtn>
             </div>
           </div>
- 
+
           {/* Row 2: search (mobile / tablet) */}
           <div className="pb-3 lg:hidden">
             <SearchBar {...searchProps} />
           </div>
- 
+
           {/* Row 3: category links (desktop) */}
-          <nav aria-label="Categories" className="hidden border-t border-[#f3ecdc] lg:block">
+          <nav
+            aria-label="Categories"
+            className="hidden border-t border-[#f3ecdc] lg:block"
+          >
             <ul className="flex min-h-[3.25rem] items-center justify-start gap-x-8 py-3 xl:gap-x-14">
               {links.map((l) => (
                 <li key={l.id} className="group/item relative">
@@ -438,7 +463,7 @@ const searchProps = {
                       </span>
                     </span>
                   </Link>
- 
+
                   {/* subcategories dropdown */}
                   {l.children.length > 0 && (
                     <div className="invisible absolute left-0 top-full z-50 pt-3 opacity-0 transition duration-200 group-focus-within/item:visible group-focus-within/item:opacity-100 group-hover/item:visible group-hover/item:opacity-100">
@@ -462,7 +487,7 @@ const searchProps = {
           </nav>
         </div>
       </header>
- 
+
       {/* ===== Mobile drawer ===== */}
       <div
         className={`fixed inset-0 z-[60] lg:hidden ${open ? "visible" : "invisible pointer-events-none"}`}
@@ -497,8 +522,11 @@ const searchProps = {
               <CloseIcon />
             </button>
           </div>
- 
-          <nav aria-label="Mobile categories" className="flex-1 overflow-y-auto px-2 py-2">
+
+          <nav
+            aria-label="Mobile categories"
+            className="flex-1 overflow-y-auto px-2 py-2"
+          >
             <ul>
               {links.map((l) => (
                 <li key={l.id}>
@@ -507,7 +535,9 @@ const searchProps = {
                       to={l.href}
                       onClick={() => setOpen(false)}
                       className={`flex flex-1 items-center gap-3 rounded-lg px-3 py-3.5 text-[17px] transition hover:bg-[#fbf1dc] ${
-                        isActive(l.href) ? "font-semibold text-[#8a5200]" : "text-neutral-800"
+                        isActive(l.href)
+                          ? "font-semibold text-[#8a5200]"
+                          : "text-neutral-800"
                       }`}
                     >
                       {l.logo && (
@@ -527,8 +557,14 @@ const searchProps = {
                           navigate(l.href);
                         }
                       }}
-                      aria-label={l.children.length > 0 ? `Toggle ${l.label}` : `Go to ${l.label}`}
-                      aria-expanded={l.children.length > 0 ? expanded === l.id : undefined}
+                      aria-label={
+                        l.children.length > 0
+                          ? `Toggle ${l.label}`
+                          : `Go to ${l.label}`
+                      }
+                      aria-expanded={
+                        l.children.length > 0 ? expanded === l.id : undefined
+                      }
                       className="grid h-10 w-10 place-items-center rounded-full hover:bg-[#fbf1dc]"
                     >
                       <ChevronIcon
@@ -538,7 +574,7 @@ const searchProps = {
                       />
                     </button>
                   </div>
- 
+
                   {l.children.length > 0 && expanded === l.id && (
                     <ul className="mb-1 ml-6 border-l border-[#efe6d2] pl-2">
                       {l.children.map((c) => (
@@ -558,17 +594,24 @@ const searchProps = {
               ))}
             </ul>
           </nav>
- 
-          <div className="grid grid-cols-3 gap-2 border-t border-[#efe6d2] p-3 text-[13px] text-[#8a1c1c]">
+
+          <div className="grid grid-cols-2 gap-2 border-t border-[#efe6d2] p-3 text-[13px] text-[#8a1c1c]">
             {[
-              { label: "Account", href: "/account", Icon: UserIcon },
-              { label: "Wishlist", href: "/wishlist", Icon: HeartIcon },
-              { label: "Stores", href: "/stores", Icon: StoreIcon },
+              { label: "Account", href: "/Signup", Icon: UserIcon },
+              { label: "Wishlist", href: "", Icon: HeartIcon },
+             
             ].map(({ label, href, Icon }) => (
               <Link
                 key={label}
                 to={href}
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  if (label === "Wishlist") {
+                    setOpen(false);
+                    setWishOpen(true);
+                  } else {
+                    setOpen(false);
+                  }
+                }}
                 className="flex flex-col items-center gap-1 rounded-lg py-2.5 hover:bg-[#fbf1dc]"
               >
                 <Icon className="h-6 w-6" />
@@ -581,5 +624,5 @@ const searchProps = {
     </>
   );
 }
- 
+
 export default Navbar;

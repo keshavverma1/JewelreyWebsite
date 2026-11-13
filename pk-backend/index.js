@@ -61,13 +61,14 @@ async function connectDB() {
   return cached.conn;
 }
 
-// Database middleware
+// Database Middleware
 app.use(async (req, res, next) => {
   try {
     await connectDB();
     next();
   } catch (error) {
     console.error("MongoDB connection error:", error);
+
     res.status(500).json({
       success: false,
       message: "Database connection failed",
@@ -75,7 +76,7 @@ app.use(async (req, res, next) => {
   }
 });
 
-// Basic route
+// Basic Route
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
@@ -87,6 +88,14 @@ app.get("/", (req, res) => {
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 
+// Local Development
+const PORT = process.env.PORT || 5001;
+
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
 // Export for Vercel
 export default app;
-

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import api from "../api/api";
+import { Auth } from "../context/AuthContext";
 
 const WHATSAPP_NUMBER = "918171547808";
 const PAGE_SIZE = 12;
@@ -35,7 +36,9 @@ const compareSku = (a, b) =>
   });
 
 const normalize = (text) =>
-  String(text || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  String(text || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
 
 // Products response
 const getProductsFromResponse = (data) => {
@@ -129,6 +132,22 @@ const SearchIcon = (props) => (
   </svg>
 );
 
+// Wishlist icon
+const HeartIcon = (props) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    {...props}
+  >
+    <path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 4.5 6.4 4.5c2 0 3.5 1.1 4.3 2.4.4.6.8.6 1.2 0 .8-1.3 2.3-2.4 4.3-2.4 3.7 0 5.5 3.9 4 7.3C19.5 16.4 12 21 12 21Z" />
+  </svg>
+);
+
 // PK Jewellery theme
 const THEME = {
   "--pk-bg": "#FBF6EE",
@@ -169,9 +188,13 @@ const SkeletonCard = () => (
   </div>
 );
 
-// Product card
-const ProductCard = React.memo(({ product }) => {
+//Product card
+const ProductCard = React.memo(({ product, wishlist, setWishlist }) => {
+  const { setWishOpen } = React.useContext(Auth);
   const [imgFailed, setImgFailed] = React.useState(false);
+
+  /////////////------------------------------------------------------------------------------------
+
   const [hoverFailed, setHoverFailed] = React.useState(false);
   const [imgLoaded, setImgLoaded] = React.useState(false);
 
@@ -195,6 +218,9 @@ const ProductCard = React.memo(({ product }) => {
   const productUrl = `/product/${product.sku}/${product._id}`;
 
   const displayName = product.name || product.title || "PK Jewellery";
+  const isWishlisted = wishlist.some(
+  (item) => item._id === product._id
+);
 
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--pk-line)] bg-[var(--pk-card)] shadow-[0_1px_2px_rgba(59,26,26,0.05)] motion-safe:transition-all motion-safe:duration-300 hover:-translate-y-1 hover:border-[var(--pk-gold)]/50 hover:shadow-[0_20px_40px_-18px_rgba(107,15,26,0.35)]">
@@ -222,8 +248,8 @@ const ProductCard = React.memo(({ product }) => {
                   !imgLoaded
                     ? "opacity-0"
                     : showHover
-                    ? "opacity-100 group-hover:opacity-0"
-                    : "opacity-100 motion-safe:duration-700 group-hover:scale-105"
+                      ? "opacity-100 group-hover:opacity-0"
+                      : "opacity-100 motion-safe:duration-700 group-hover:scale-105"
                 }`}
               />
 
@@ -245,6 +271,48 @@ const ProductCard = React.memo(({ product }) => {
               Photo coming soon
             </div>
           )}
+
+          {/* Wishlist button */}
+          <button
+            type="button"
+            aria-label="Add to wishlist"
+
+            className={`absolute left-2.5 top-2.5 z-10 flex h-9 w-9 items-center justify-center rounded-full shadow-sm backdrop-blur motion-safe:transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pk-gold)] ${
+  isWishlisted
+    ? "bg-[var(--pk-maroon)] text-white"
+    : "bg-white/90 text-[var(--pk-maroon)] hover:bg-[var(--pk-maroon)] hover:text-white"
+}`}
+            
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              setWishlist((prev) => {
+                const alreadyExists = prev.some(
+                  (item) => item._id === product._id,
+                );
+
+                if (alreadyExists) {
+                  const updatedWishlist = prev.filter(
+                    (item) => item._id !== product._id
+                  );
+                  localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
+                  return updatedWishlist;
+                }
+
+                const updatedWishlist = [...prev, product];
+
+                const setItem = localStorage.setItem(
+                  "wishlist",
+                  JSON.stringify(updatedWishlist),
+                );
+                return updatedWishlist;
+              });
+              setWishOpen(true);
+            }}
+            
+          >
+            <HeartIcon className="h-5 w-5" />
+          </button>
 
           {/* SKU chip */}
           {product.sku && (
@@ -304,11 +372,12 @@ const ProductCard = React.memo(({ product }) => {
 
 // Main category page
 const CategoryPages = () => {
+  const { wishlist, setWishlist } = React.useContext(Auth);
   const { slug } = useParams();
 
   const [products, setProducts] = React.useState([]);
   const [category, setCategory] = React.useState(null);
-
+//------------------------------------------whihlist
   const [query, setQuery] = React.useState("");
 
   const [loading, setLoading] = React.useState(true);
@@ -355,7 +424,7 @@ const CategoryPages = () => {
       try {
         const productsRequest = api.get(
           `/api/products/p1/${slug}?page=1&limit=${PAGE_SIZE}`,
-          { signal: controller.signal }
+          { signal: controller.signal },
         );
 
         const categoriesRequest = api
@@ -378,7 +447,7 @@ const CategoryPages = () => {
         const productsData = productsResponse.data;
 
         const firstProducts = getProductsFromResponse(productsData).filter(
-          (product) => product?.isActive !== false
+          (product) => product?.isActive !== false,
         );
 
         const pagination = getPaginationData(productsData, firstProducts);
@@ -439,7 +508,7 @@ const CategoryPages = () => {
     try {
       const response = await api.get(
         `/api/products/p1/${slug}?page=${nextPage}&limit=${PAGE_SIZE}`,
-        { signal: controller.signal }
+        { signal: controller.signal },
       );
 
       if (controller.signal.aborted) return;
@@ -447,7 +516,7 @@ const CategoryPages = () => {
       const data = response.data;
 
       const nextProducts = getProductsFromResponse(data).filter(
-        (product) => product?.isActive !== false
+        (product) => product?.isActive !== false,
       );
 
       const pagination = getPaginationData(data, nextProducts);
@@ -455,8 +524,8 @@ const CategoryPages = () => {
       setProducts((previousProducts) => {
         const existingIds = new Set(
           previousProducts.map(
-            (product) => product._id || product.sku || product.slug
-          )
+            (product) => product._id || product.sku || product.slug,
+          ),
         );
 
         const uniqueProducts = nextProducts.filter((product) => {
@@ -507,7 +576,7 @@ const CategoryPages = () => {
           loadNextPageRef.current?.();
         }
       },
-      { rootMargin: `0px 0px ${PRELOAD_PX}px 0px`, threshold: 0 }
+      { rootMargin: `0px 0px ${PRELOAD_PX}px 0px`, threshold: 0 },
     );
 
     observer.observe(target);
@@ -518,7 +587,7 @@ const CategoryPages = () => {
   // Active products
   const active = React.useMemo(
     () => products.filter((product) => product?.isActive !== false),
-    [products]
+    [products],
   );
 
   // Normal list: server order. Search: SKU number order.
@@ -638,6 +707,8 @@ const CategoryPages = () => {
                 <ProductCard
                   key={product._id || product.sku || product.slug || index}
                   product={product}
+                  wishlist={wishlist}
+                  setWishlist={setWishlist}
                 />
               ))}
 
