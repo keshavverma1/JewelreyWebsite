@@ -2,10 +2,11 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://jewelrey-website-pg3x.vercel.app/",
+  baseURL: "https://internal.pkjewels.world/",
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 export default api;
