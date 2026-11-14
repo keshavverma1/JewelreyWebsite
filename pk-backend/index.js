@@ -15,7 +15,9 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "https://jewelrey-website.vercel.app",
+       "https://jewelrey-website.vercel.app",
+      "https://pkjewels.world",
+      "https://www.pkjewels.world",
       process.env.FRONTEND_URL,
       "http://localhost:5173",
     ].filter(Boolean),
