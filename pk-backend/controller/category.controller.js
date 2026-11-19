@@ -1,9 +1,4 @@
 
-
-
-
-
-
 import categoryModel from "../models/category.model.js";
 
 // GET ALL CATEGORIES WITH SUBCATEGORIES

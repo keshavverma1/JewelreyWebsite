@@ -2,7 +2,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://jewelrey-website-pg3x.vercel.app/",
+  baseURL: "http://localhost:5001",
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },

@@ -32,9 +32,8 @@ const ladiesRingCategories = [
 ];
 
 const legalLinks = [
-  { label: "Terms & Conditions", href: "#" },
-  { label: "Privacy Notice", href: "#" },
-  { label: "Disclaimer", href: "#" },
+  { label: "Terms & Conditions", href: "/terms" },
+  { label: "Disclaimer", href: "/disclaimer" },
 ];
 
 const icon = {

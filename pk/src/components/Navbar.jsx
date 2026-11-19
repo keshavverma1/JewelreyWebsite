@@ -2,6 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { RiJewelryFill } from "react-icons/ri";
 import api from "../api/api";
+import { Auth } from "../context/AuthContext";
+import React from "react";
+
+import MenuPopupState from "../SmallComponents/MenuPopupState";
 /**
  * PK Navbar (React + Tailwind + react-router-dom) — fully responsive
  *
@@ -264,7 +268,7 @@ function Navbar({
 }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-
+  const {setCartOpen} = React.useContext(Auth);
   const [open, setOpen] = useState(false);
   const [showBar, setShowBar] = useState(Boolean(announcement));
   const [query, setQuery] = useState("");
@@ -406,8 +410,8 @@ function Navbar({
 
             {/* right: icons */}
             <div className="flex items-center gap-0.5 sm:gap-1.5">
-              <IconBtn label="Signup" href="/Signup">
-                <UserIcon />
+              <IconBtn label="Signup" href="">
+               <MenuPopupState />
               </IconBtn>
               <IconBtn>
                 <button
@@ -419,13 +423,21 @@ function Navbar({
                   <HeartIcon />
                 </button>
               </IconBtn>
-              <span className="hidden lg:block">
+              <span className="hidden ">
                 <IconBtn label="Account" href="/Signup">
                   <UserIcon />
                 </IconBtn>
               </span>
-              <IconBtn label="Cart" href="/cart" badge={cartCount}>
-                <BagIcon />
+              <IconBtn label="Cart" href="" badge={cartCount}>
+              <button
+                  className="grid h-10 w-10 place-items-center rounded-full text-[#8a1c1c] hover:bg-[#fbf1dc]"
+                  label="Cart"
+                  onClick={() => setCartOpen(true)}
+                  aria-label="Cart"
+                >
+                  <BagIcon />
+                </button>
+                
               </IconBtn>
             </div>
           </div>
