@@ -4,7 +4,7 @@ import { sendOTPEmail, sendOTPForForgetEmail } from "../utils/nodeMailer.js";
 import pendingSignupModel from "../models/pendingSignupModel.js";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import ResetPassowrd from "./../../pk/src/ForgetPages/ResetPassowrd";
+
 
 // ==========================================
 // REGISTER USER
